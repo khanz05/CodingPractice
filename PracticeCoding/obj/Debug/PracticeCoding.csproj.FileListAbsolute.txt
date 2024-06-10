@@ -1,0 +1,7 @@
+C:\BI\ClientApplication\Study\PracticeCoding\bin\Debug\PracticeCoding.exe.config
+C:\BI\ClientApplication\Study\PracticeCoding\bin\Debug\PracticeCoding.exe
+C:\BI\ClientApplication\Study\PracticeCoding\bin\Debug\PracticeCoding.pdb
+C:\BI\ClientApplication\Study\PracticeCoding\obj\Debug\PracticeCoding.csproj.AssemblyReference.cache
+C:\BI\ClientApplication\Study\PracticeCoding\obj\Debug\PracticeCoding.csproj.CoreCompileInputs.cache
+C:\BI\ClientApplication\Study\PracticeCoding\obj\Debug\PracticeCoding.exe
+C:\BI\ClientApplication\Study\PracticeCoding\obj\Debug\PracticeCoding.pdb

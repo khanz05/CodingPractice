@@ -195,7 +195,40 @@ namespace PracticeCoding
 
             //ArrayData();
 
-            AdjacencyMatrix();
+            //AdjacencyMatrix();
+            //AdjacencyList();
+
+            //int V = 4;
+            //int[,] edges = { { 0, 1 }, { 0, 3 }, { 1, 2 }, { 2, 3 } };
+            //BFSTraversal(edges, V);
+
+            //int V = 4;
+            //int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
+            //DFSTraversal(edges, V);
+
+
+            //int V = 10;
+            ////int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
+            //int[,] edges = { { 1, 2 }, { 2, 1 }, { 2, 3 }, { 3, 2 }, { 4, 5 }, { 5, 4 }, { 5, 6 }, { 5, 7 }, { 6, 5 }, { 6, 8 }, { 7, 5 }, { 7, 8 }, { 8, 6 }, { 8, 7 }, { 8, 9 }, { 9, 8 } };
+            //CycleDetectionUsingBFS(edges, V);
+
+            int V = 10;
+            //int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
+            int[,] edges = { { 1, 2 }, { 2, 1 }, { 2, 3 }, { 3, 2 }, { 4, 5 }, { 5, 4 }, { 5, 6 }, { 5, 7 }, { 6, 5 }, { 6, 8 }, { 7, 5 }, { 7, 8 }, { 8, 6 }, { 8, 7 }, { 8, 9 }, { 9, 8 } };
+            CyclicDetectionUsingDFS(edges, V);
+
+            //int V = 9;
+            ////int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
+            //int[,] edges = { { 1, 2 }, { 2, 3 }, { 2, 4 }, { 3, 7 }, { 3, 8 }, { 4, 5 }, { 5, 6 }, { 6, 4 }, { 8, 7 } };
+            //CycleUsingDFSForDirected(edges, V);
+
+            //int V = 7;
+            //int[,] edges = { { 1, 2 }, { 1, 3 }, { 2, 4 }, { 3, 4 }, { 4, 5 }, { 4, 6 }, { 5, 6 }, { 6, -1 } };
+            //TopologicalSortUsingDFS(edges, V);
+
+            //int V = 6;
+            //int[,] edges = { { 1, 2 }, { 1, 3 }, { 2, 5 }, { 3, 5 }, { 4, -1 }, { 5, 4 } };
+            //TopologicalSortUsingKahnsAlgo(edges, V);
 
             #endregion
 
@@ -1009,10 +1042,14 @@ namespace PracticeCoding
         public static void AdjacencyMatrix()
         {
             int N = 3; //Number of Vertices
-            int M = 3; // Number of Edges
+            int M = 3; //Number of Edges
 
             int[,] AdjMatrix = new int[N, N];
             int[,] arr = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
+            int rowSize = arr.GetLength(0);
+            int colSize = arr.GetLength(1);
+            Console.WriteLine($"Row Size: {rowSize.ToString()}");
+            Console.WriteLine($"Col Size: {colSize.ToString()}");
 
             FillAdjacencyMatrix(arr, ref AdjMatrix, N, M, true);
             Print2DArray(AdjMatrix);
@@ -1035,23 +1072,557 @@ namespace PracticeCoding
             }
         }
 
-        public static void Print2DArray(int[,] arr)
+        public static void AdjacencyList()
         {
-            int row = arr.GetLength(0);
-            int col = arr.GetLength(1);
-            for (int i = 0; i < row; i++)
+            //Test case-1
+            //int V = 3;
+            //int[,] edges = { { 0, 1 }, { 1, 2 }, { 2, 0 } };
+
+            //Test case-1
+            int V = 4;
+            int[,] edges = { { 0, 1 }, { 1, 2 }, { 1, 3 }, { 2, 3 }, { 3, 0 } };
+            int rowSize = edges.GetLength(0);
+
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            PrepareAdjList(edges, rowSize, ref adjList, true);
+            foreach (var item in adjList)
             {
-                for (int j = 0; j < col; j++)
+                Console.Write($"Vertex: {item.Key}-> ");
+                foreach (var Values in item.Value)
                 {
-                    Console.Write(arr[i, j] + " ");
+                    Console.Write(Values + ", ");
                 }
-                Console.WriteLine("\n");
+            }
+        }
+
+        public static void PrepareAdjList(int[,] arr, int listSize, ref Dictionary<int, List<int>> adjList, bool directed)
+        {
+            for (int i = 0; i < listSize; i++)
+            {
+                int u = arr[i, 0];
+                int v = arr[i, 1];
+                if (adjList.ContainsKey(u))
+                {
+                    adjList[u].Add(v);
+                }
+                else
+                {
+                    adjList.Add(u, new List<int>() { v });
+                }
+
+                if (!directed)
+                {
+                    if (adjList.ContainsKey(v))
+                    {
+                        adjList[v].Add(u);
+                    }
+                    else
+                    {
+                        adjList.Add(v, new List<int>() { u });
+                    }
+                }
+            }
+        }
+
+        public static void BFSTraversal(int[,] edges, int vertex)
+        {
+            List<int> nodeBFS = new List<int>();
+
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            PrepareAdjList(edges, vertex, ref adjList, false);
+            Dictionary<int, bool> vistedEdges = new Dictionary<int, bool>();
+
+            //Initialize all vistedEdges = false;
+            foreach (var item in adjList.Keys)
+            {
+                vistedEdges.Add(item, false);
+            }
+
+            for (int i = 0; i < vertex; i++)
+            {
+                if (!vistedEdges[i])
+                {
+                    BFS(adjList, ref vistedEdges, ref nodeBFS, i);
+                }
+            }
+
+            //Print BFS Traversal
+            Console.Write("BFS Traversal->  ");
+            foreach (var item in nodeBFS)
+            {
+                Console.Write(item + ", ");
+            }
+        }
+
+        public static void BFS(Dictionary<int, List<int>> adjList, ref Dictionary<int, bool> vistedEdges, ref List<int> nodeBFS, int node)
+        {
+            Queue<int> qNode = new Queue<int>();
+            qNode.Enqueue(node);
+
+            while (qNode.Count() != 0)
+            {
+                int frontNode = qNode.Dequeue();
+
+                //Store FrontNode into ans
+                if (!vistedEdges[frontNode])
+                {
+                    nodeBFS.Add(frontNode);
+                }
+
+                //Traverse all neighbours of frontNode
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(frontNode, out values);
+                if (result)
+                {
+                    if (!vistedEdges[frontNode])
+                    {
+                        vistedEdges[frontNode] = true;
+                        foreach (var neighbours in values)
+                        {
+                            qNode.Enqueue(neighbours);
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void DFSTraversal(int[,] edges, int vertex)
+        {
+            List<int> nodeDFS = new List<int>();
+            //Prepare AdjList
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, false);
+            Dictionary<int, bool> vistedEdges = new Dictionary<int, bool>();
+
+            //Initialize all Visited Edges to false
+            foreach (var item in adjList.Keys)
+            {
+                vistedEdges[item] = false;
+            }
+
+            for (int i = 2; i < vertex; i++)
+            {
+                if (!vistedEdges[i])
+                {
+                    DFS(adjList, ref nodeDFS, ref vistedEdges, i);
+                }
+            }
+
+            //Print BFS Traversal
+            Console.Write("DFS Traversal->  ");
+            foreach (var item in nodeDFS)
+            {
+                Console.Write(item + ", ");
+            }
+        }
+
+        public static void DFS(Dictionary<int, List<int>> adjList, ref List<int> nodeDFS, ref Dictionary<int, bool> vistedEdges, int node)
+        {
+            Stack<int> sNode = new Stack<int>();
+            sNode.Push(node);
+
+            while (sNode.Count() != 0)
+            {
+                int topNode = sNode.Pop();
+                if (!vistedEdges[topNode])
+                {
+                    nodeDFS.Add(topNode);
+                }
+                else
+                {
+                    return;
+                }
+
+                //Traverse neighbours until null
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(topNode, out values);
+                if (result)
+                {
+                    if (!vistedEdges[topNode])
+                    {
+                        vistedEdges[topNode] = true;
+                        foreach (var neighbour in values)
+                        {
+                            DFS(adjList, ref nodeDFS, ref vistedEdges, neighbour);
+                        }
+                    }
+                }
+            }
+        }
+
+        #region Cycle for Undirected Graph
+        public static void CycleDetectionUsingBFS(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, true); // making graph as directed just for better understanding
+
+            //Initialize Visited Edges 
+            Dictionary<int, bool> visitedEdges = new Dictionary<int, bool>();
+            foreach (var item in adjList.Keys)
+            {
+                visitedEdges[item] = false;
+            }
+
+            for (int i = 0; i < vertex; i++)
+            {
+                bool isCycleFound = isCyclicBFS(adjList, ref visitedEdges, i);
+                if (isCycleFound)
+                {
+                    Console.WriteLine("Cycle Found using BFS");
+                    return;
+                }
+            }
+        }
+
+        public static bool isCyclicBFS(Dictionary<int, List<int>> adjList, ref Dictionary<int, bool> visitedEdges, int node)
+        {
+            //Parent to keep track of vertex source
+            Dictionary<int, int> parent = new Dictionary<int, int>();
+            Queue<int> qNode = new Queue<int>();
+            qNode.Enqueue(node);
+            parent[node] = -1;
+
+            while (qNode.Count() > 0)
+            {
+                int frontNode = qNode.Dequeue();
+                List<int> values = new List<int>();
+                bool v = adjList.TryGetValue(frontNode, out values);
+                if (values != null)
+                {
+                    if (!visitedEdges[frontNode])
+                    {
+                        visitedEdges[frontNode] = true;
+                        foreach (var neighbour in values)
+                        {
+                            if (visitedEdges[neighbour] && parent[frontNode] != neighbour)
+                            {
+                                return true;
+                            }
+                            if (!visitedEdges[neighbour] && !qNode.Contains(neighbour))
+                            {
+                                qNode.Enqueue(neighbour);
+                                parent[neighbour] = frontNode;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static void CyclicDetectionUsingDFS(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, true); // making graph as directed just for better understanding
+
+            //Visted Egdes
+            Dictionary<int, bool> visted = new Dictionary<int, bool>();
+            foreach (var item in adjList.Keys)
+            {
+                visted[item] = false;
+            }
+
+            //Parent of each verttex
+            Dictionary<int, int> parent = new Dictionary<int, int>();
+
+            //Cycle Detection
+            for (int i = 0; i < vertex; i++)
+            {
+                bool isCycleFound = IsCycleDFS(adjList, ref visted, ref parent, -1, i);
+                if (isCycleFound)
+                {
+                    Console.WriteLine("Cycle Found using DFS");
+                    return;
+                }
+            }
+        }
+
+        public static bool IsCycleDFS(Dictionary<int, List<int>> adjList, ref Dictionary<int, bool> visted, ref Dictionary<int, int> parent, int p, int node)
+        {
+            Stack<int> sNode = new Stack<int>();
+            sNode.Push(node);
+            parent[node] = p;
+
+            while (sNode.Count() > 0)
+            {
+                int topNode = sNode.Pop();
+                //Visit Neighbours
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(topNode, out values);
+                if (result)
+                {
+                    if (!visted[topNode])
+                    {
+                        visted[topNode] = true;
+                        foreach (var neighbours in values)
+                        {
+                            if (!visted[neighbours])
+                            {
+                                bool isCycle = IsCycleDFS(adjList, ref visted, ref parent, topNode, neighbours);
+                                if (isCycle)
+                                {
+                                    return true;
+                                }
+                            }
+                            else if (neighbours != parent[topNode])
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+        #endregion
+
+        #region Cycle for Directed Graph
+
+        public static void CycleUsingDFSForDirected(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, true);
+
+            //Visited edges
+            Dictionary<int, bool> visited = new Dictionary<int, bool>();
+
+            //Visited DFS
+            Dictionary<int, bool> dfsVisited = new Dictionary<int, bool>();
+
+            foreach (var item in adjList.Keys)
+            {
+                visited[item] = false;
+                dfsVisited[item] = false;
+            }
+
+            //Cycle Call
+            for (int i = 0; i < vertex; i++)
+            {
+                bool isCycleFound = IsCycleDFSForDirected(adjList, ref visited, ref dfsVisited, i);
+                if (isCycleFound)
+                {
+                    Console.WriteLine("Cycle found using DFS for directed Graph");
+                }
+            }
+        }
+
+        public static bool IsCycleDFSForDirected(Dictionary<int, List<int>> adjList, ref Dictionary<int, bool> visited, ref Dictionary<int, bool> dfsVisited, int node)
+        {
+            Stack<int> sNode = new Stack<int>();
+            sNode.Push(node);
+
+            while (sNode.Count() > 0)
+            {
+                int topNode = sNode.Pop();
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(topNode, out values);
+                if (result)
+                {
+                    if (!visited[topNode])
+                    {
+                        visited[topNode] = true;
+                        dfsVisited[topNode] = true;
+                        foreach (var neighbour in values)
+                        {
+                            if (visited.ContainsKey(neighbour) && !visited[neighbour])
+                            {
+                                bool isCycleDetected = IsCycleDFSForDirected(adjList, ref visited, ref dfsVisited, neighbour);
+                                if (isCycleDetected)
+                                {
+                                    return true;
+                                }
+                            }
+                            else if (dfsVisited.ContainsKey(neighbour) && dfsVisited[neighbour])
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                dfsVisited[topNode] = false;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Topological Sort
+
+        /// <summary>
+        /// Topological Sort can only be performed for acyclic graphs
+        /// </summary>
+        /// <param name="edges"></param>
+        /// <param name="vertex"></param>
+        public static void TopologicalSortUsingDFS(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, true);
+
+            //Visited edges
+            Dictionary<int, bool> visited = new Dictionary<int, bool>();
+            foreach (var item in adjList.Keys)
+            {
+                visited[item] = false;
+            }
+
+            //Stack to store node whose DFS is completed
+            Stack<int> stack = new Stack<int>();
+
+            //Perform DFS
+            for (int i = 0; i < vertex; i++)
+            {
+                TopologicalSortUsingDFS(adjList, ref visited, ref stack, i);
+                var isFalse = visited.Where(x => x.Value != true).Count();
+                if (isFalse == 0)
+                {
+                    break;
+                }
+            }
+
+            PrintAdjList(adjList);
+
+            Console.Write("Toplogical Sort Using DFS -> ");
+            while (stack.Count() > 0)
+            {
+                Console.Write(stack.Pop() + " ");
+            }
+        }
+
+        public static void TopologicalSortUsingDFS(Dictionary<int, List<int>> adjList, ref Dictionary<int, bool> visited, ref Stack<int> stackAns, int node)
+        {
+            Stack<int> sNode = new Stack<int>();
+            sNode.Push(node);
+
+            while (sNode.Count() > 0)
+            {
+                int topNode = sNode.Pop();
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(topNode, out values);
+                if (result)
+                {
+                    if (visited.ContainsKey(topNode) && !visited[topNode])
+                    {
+                        visited[topNode] = true;
+                        foreach (var neigbour in values)
+                        {
+                            if (visited.ContainsKey(neigbour) && !visited[neigbour])
+                            {
+                                TopologicalSortUsingDFS(adjList, ref visited, ref stackAns, neigbour);
+                            }
+                        }
+                    }
+                }
+
+                if (visited.ContainsKey(topNode) && visited[topNode])
+                {
+                    stackAns.Push(topNode);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Topological Sort using Kahn's Algo
+        /// 1 -> Find Indegree of all nodes
+        /// 2 -> Add all 0 Indegree node to queue
+        /// 3 -> Do BFS
+        /// </summary>
+        /// <param name="edges"></param>
+        /// <param name="vertex"></param>
+        public static void TopologicalSortUsingKahnsAlgo(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, true);
+
+            //Find Indegree of all nodes
+            int[] inDegree = new int[vertex];
+
+            foreach (var item in adjList)
+            {
+                foreach (var values in item.Value.Where(x=> x != -1))
+                {
+                    inDegree[values]++;
+                }
+            }
+
+            //Push 0 indegree to queue
+            Queue<int> qNode = new Queue<int>();
+            for (int i = 0; i < inDegree.Length; i++)
+            {
+                if (inDegree[i] == 0)
+                {
+                    qNode.Enqueue(i);
+                }
+            }
+
+            //Perform BFS
+            List<int> ans = new List<int>();
+
+            while (qNode.Count() > 0)
+            {
+                int frontNode = qNode.Dequeue();
+                
+                //Ans store
+                ans.Add(frontNode);
+
+                //neighbour Indegree update
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(frontNode, out values);
+                if (result)
+                {
+                    foreach (var neighbour in values.Where(x => x != -1))
+                    {
+                        inDegree[neighbour]--;
+                        if (inDegree[neighbour] == 0)
+                        {
+                            qNode.Enqueue(neighbour);
+                        }
+                    }
+                }
+            }
+
+            ans.RemoveAt(0);
+
+
+            PrintAdjList(adjList);
+
+            Console.Write("Topological Sort using Kahn's Algo and BFS -> ");
+            foreach (var item in ans)
+            {
+                Console.Write(item + " ");
             }
         }
 
         #endregion
 
+        #endregion
+
         #region Common Methods
+
+        public static void PrintAdjList(Dictionary<int, List<int>> adjList)
+        {
+            foreach (var item in adjList)
+            {
+                Console.Write($"Vertex: {item.Key}-> ");
+                foreach (var Values in item.Value)
+                {
+                    Console.Write(Values + ", ");
+                }
+            }
+            Console.WriteLine("\n");
+        }
 
         public static void PrintArray(int[] arr, int low, int high)
         {
@@ -1085,6 +1656,20 @@ namespace PracticeCoding
             int temp = arr[i];
             arr[i] = arr[j];
             arr[j] = temp;
+        }
+
+        public static void Print2DArray(int[,] arr)
+        {
+            int row = arr.GetLength(0);
+            int col = arr.GetLength(1);
+            for (int i = 0; i < row; i++)
+            {
+                for (int j = 0; j < col; j++)
+                {
+                    Console.Write(arr[i, j] + " ");
+                }
+                Console.WriteLine("\n");
+            }
         }
 
         #endregion

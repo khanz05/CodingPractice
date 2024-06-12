@@ -212,10 +212,10 @@ namespace PracticeCoding
             //int[,] edges = { { 1, 2 }, { 2, 1 }, { 2, 3 }, { 3, 2 }, { 4, 5 }, { 5, 4 }, { 5, 6 }, { 5, 7 }, { 6, 5 }, { 6, 8 }, { 7, 5 }, { 7, 8 }, { 8, 6 }, { 8, 7 }, { 8, 9 }, { 9, 8 } };
             //CycleDetectionUsingBFS(edges, V);
 
-            int V = 10;
-            //int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
-            int[,] edges = { { 1, 2 }, { 2, 1 }, { 2, 3 }, { 3, 2 }, { 4, 5 }, { 5, 4 }, { 5, 6 }, { 5, 7 }, { 6, 5 }, { 6, 8 }, { 7, 5 }, { 7, 8 }, { 8, 6 }, { 8, 7 }, { 8, 9 }, { 9, 8 } };
-            CyclicDetectionUsingDFS(edges, V);
+            //int V = 10;
+            ////int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
+            //int[,] edges = { { 1, 2 }, { 2, 1 }, { 2, 3 }, { 3, 2 }, { 4, 5 }, { 5, 4 }, { 5, 6 }, { 5, 7 }, { 6, 5 }, { 6, 8 }, { 7, 5 }, { 7, 8 }, { 8, 6 }, { 8, 7 }, { 8, 9 }, { 9, 8 } };
+            //CyclicDetectionUsingDFS(edges, V);
 
             //int V = 9;
             ////int[,] edges = { { 0, 1 }, { 0, 2 }, { 1, 2 }, { 2, 0 }, { 2, 3 }, { 3, 3 } };
@@ -229,6 +229,15 @@ namespace PracticeCoding
             //int V = 6;
             //int[,] edges = { { 1, 2 }, { 1, 3 }, { 2, 5 }, { 3, 5 }, { 4, -1 }, { 5, 4 } };
             //TopologicalSortUsingKahnsAlgo(edges, V);
+
+            //int V = 10;
+            //int[,] edges = { { 1, 2 }, { 1, 3 }, { 1, 4 }, { 2, 5 }, { 3, 8 }, { 4, 6 }, { 5, 8 }, { 6, 7 }, { 7, 8 }, { 8, -1 } };
+            //int source = 1;
+            //int destination = 7;
+            //ShortestPathForUndirectedGraph(edges, V, source, destination);
+
+            int source = 0;
+            ShortestDistanceForWeightedGraph(source);
 
             #endregion
 
@@ -969,6 +978,7 @@ namespace PracticeCoding
             int pivotIndex = count + low;
             Swap(arr, pivotIndex, low);
 
+            //Placing all values < pivot to left and all values > pivot to right
             int j = low, k = high;
             while (j < pivotIndex && k > pivotIndex)
             {
@@ -1551,7 +1561,7 @@ namespace PracticeCoding
 
             foreach (var item in adjList)
             {
-                foreach (var values in item.Value.Where(x=> x != -1))
+                foreach (var values in item.Value.Where(x => x != -1))
                 {
                     inDegree[values]++;
                 }
@@ -1573,7 +1583,7 @@ namespace PracticeCoding
             while (qNode.Count() > 0)
             {
                 int frontNode = qNode.Dequeue();
-                
+
                 //Ans store
                 ans.Add(frontNode);
 
@@ -1604,6 +1614,200 @@ namespace PracticeCoding
                 Console.Write(item + " ");
             }
         }
+
+        #endregion
+
+        #region Shortest Distance in Undirected Graph
+
+        public static void ShortestPathForUndirectedGraph(int[,] edges, int vertex, int source, int destination)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, false); //Using Directed for better understanding
+
+            //Visited & Parent DS
+            Dictionary<int, bool> visited = new Dictionary<int, bool>();
+            Dictionary<int, int> parent = new Dictionary<int, int>();
+
+            //Initialize all visited to false
+            foreach (var item in adjList.Keys)
+            {
+                visited[item] = false;
+            }
+
+            //Perform BFS
+            Queue<int> qNode = new Queue<int>();
+            var value = edges[0, 0];
+            qNode.Enqueue(value);
+            parent[value] = -1;
+
+            while (qNode.Count() > 0)
+            {
+                int frontNode = qNode.Dequeue();
+                List<int> values = new List<int>();
+                bool result = adjList.TryGetValue(frontNode, out values);
+                if (result)
+                {
+                    if (!visited[frontNode])
+                    {
+                        visited[frontNode] = true;
+                        foreach (var neighbour in values.Where(x => x != -1))
+                        {
+                            if (!visited[neighbour])
+                            {
+                                if (!qNode.Contains(neighbour))
+                                {
+                                    qNode.Enqueue(neighbour);
+                                    parent[neighbour] = frontNode;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            List<int> ans = new List<int>();
+
+            //Get Shortest path from parent
+            int currentNode = destination;
+            ans.Add(currentNode);
+            while (currentNode != source)
+            {
+                currentNode = parent[currentNode];
+                ans.Add(currentNode);
+            }
+
+            ans.Reverse();
+            Console.Write($"Shortest path from {source} to {destination}: ");
+            foreach (var item in ans)
+            {
+                Console.Write(item + "-> ");
+            }
+        }
+
+        #endregion
+
+        #region Shortest Distance in Directed weighted Graph
+
+        public static void ShortestDistanceForWeightedGraph(int source)
+        {
+            //Prepare AdjList with weighted edges.
+            Graph g = new Graph();
+            g.AddEdegesWithWeight(0, 1, 5);
+            g.AddEdegesWithWeight(0, 2, 3);
+            g.AddEdegesWithWeight(1, 2, 2);
+            g.AddEdegesWithWeight(1, 3, 6);
+            g.AddEdegesWithWeight(2, 3, 7);
+            g.AddEdegesWithWeight(2, 4, 4);
+            g.AddEdegesWithWeight(2, 5, 2);
+            g.AddEdegesWithWeight(3, 4, -1);
+            g.AddEdegesWithWeight(4, 5, -2);
+
+            g.PrintAdjList();
+
+            Dictionary<int, bool> visited = new Dictionary<int, bool>();
+            for (int i = 0; i < 6; i++)
+            {
+                visited[i] = false;
+            }
+            Stack<int> ans = new Stack<int>();
+
+            //Topological Sort
+            for (int i = 0; i < 6; i++)
+            {
+                if (!visited[i])
+                {
+                    DFSWeighted(g.adjList, ref visited, ref ans, i);
+                }
+            }
+
+            //Distance DS
+            int[] distance = new int[6];
+            for (int i = 0; i < distance.Length; i++)
+            {
+                distance[i] = int.MaxValue;
+            }
+
+            //Use ans to get the shortest distance from source to each node
+            distance[source] = 0;
+
+            ShortestPathWeight(source, ref ans, ref distance, g.adjList);
+
+            //Print Distance
+            Console.Write($"Shortest Path from Source {source} to each node: -> ");
+            foreach (var item in distance)
+            {
+                Console.Write(item+", ");
+            }
+        }
+
+        public static void DFSWeighted(Dictionary<int, Dictionary<int, int>> adjList, ref Dictionary<int, bool> visited, ref Stack<int> ans, int node)
+        {
+            Stack<int> sNode = new Stack<int>();
+            sNode.Push(node);
+
+            while (sNode.Count() > 0)
+            {
+                int topNode = sNode.Pop();
+                Dictionary<int, int> item = new Dictionary<int, int>();
+                bool result = adjList.TryGetValue(topNode, out item);
+                if (result)
+                {
+                    if (visited.ContainsKey(topNode) && !visited[topNode])
+                    {
+                        visited[topNode] = true;
+                        foreach (var neighbour in item)
+                        {
+                            if (visited.ContainsKey(neighbour.Key) && !visited[neighbour.Key])
+                            {
+                                DFSWeighted(adjList, ref visited, ref ans, neighbour.Key);
+                            }
+                        }
+                    }
+                }
+                if (!ans.Contains(topNode))
+                {
+                    ans.Push(topNode);
+                }
+            }
+        }
+
+        public static void ShortestPathWeight(int source, ref Stack<int> ans, ref int[] distance, Dictionary<int, Dictionary<int, int>> adjList)
+        {
+            while (ans.Count() > 0)
+            {
+                int topNode = ans.Pop();
+                foreach (var item in adjList)
+                {
+                    int distanceFromSource = distance[topNode];
+                    if (item.Key == topNode)
+                    {
+                        if (distanceFromSource != int.MaxValue)
+                        {
+                            Dictionary<int, int> values = new Dictionary<int, int>();
+                            bool result = adjList.TryGetValue(item.Key, out values);
+                            if (result)
+                            {
+                                foreach (var neighbour in values)
+                                {
+                                    int weightOfNode = distance[topNode] + neighbour.Value;
+                                    distance[neighbour.Key] = Math.Min(distance[neighbour.Key], weightOfNode);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Shortest Path using Dijkstra's Algo
 
         #endregion
 
@@ -1674,6 +1878,41 @@ namespace PracticeCoding
 
         #endregion
     }
+
+    #region Graph
+
+    public class Graph
+    {
+        public Dictionary<int, Dictionary<int, int>> adjList = new Dictionary<int, Dictionary<int, int>>();
+        public void AddEdegesWithWeight(int parentNode, int directedNode, int weight)
+        {
+            Dictionary<int, int> uv = new Dictionary<int, int>();
+            uv.Add(directedNode, weight);
+            if (adjList.ContainsKey(parentNode))
+            {
+                adjList[parentNode].Add(directedNode, weight);
+            }
+            else
+            {
+                adjList.Add(parentNode, uv);
+            }
+        }
+
+        public void PrintAdjList()
+        {
+            foreach (var item in adjList)
+            {
+                Console.Write(item.Key + "-> ");
+                foreach (var neighbour in item.Value)
+                {
+                    Console.Write("(" + neighbour.Key + ", " + neighbour.Value + "), ");
+                }
+                Console.WriteLine("\n");
+            }
+        }
+    }
+
+    #endregion
 
     #region BST 
 
@@ -1775,6 +2014,9 @@ namespace PracticeCoding
             }
         }
 
+        /// <summary>
+        /// LNR
+        /// </summary>
         public void InOrderTraversal()
         {
             if (LeftNode != null)
@@ -1790,6 +2032,9 @@ namespace PracticeCoding
             }
         }
 
+        /// <summary>
+        /// NLR
+        /// </summary>
         public void PreOrderTraversal()
         {
             Console.Write(data + " ");
@@ -1805,6 +2050,9 @@ namespace PracticeCoding
             }
         }
 
+        /// <summary>
+        /// LRN
+        /// </summary>
         public void PostOrderTraversal()
         {
             if (LeftNode != null)

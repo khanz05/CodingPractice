@@ -192,6 +192,8 @@ namespace PracticeCoding
             #endregion
 
             #region Graphs
+            //int []arr = new int[]{ 0, 0, 1};
+            //int values = findParent(arr, 2);
 
             //ArrayData();
 
@@ -236,8 +238,29 @@ namespace PracticeCoding
             //int destination = 7;
             //ShortestPathForUndirectedGraph(edges, V, source, destination);
 
-            int source = 0;
-            ShortestDistanceForWeightedGraph(source);
+            //int source = 0;
+            //ShortestDistanceForWeightedGraph(source);
+
+            //int source = 0;
+            //ShortestPathUsingDijkstra(source, 5);
+
+            //ShortestPathUsingDijkstraTwo();
+
+            //MSTUsingPrimsAlgo();
+
+            //int[,] graph = new int[,] { { 0, 0, 0, 0, 0, 0, 0 },
+            //                  { 0, 0, 2, 0, 1, 4, 0 },
+            //                  { 0, 0, 0, 3, 3, 0, 7 },
+            //                  { 0, 0, 0, 0, 0, 0, 7},
+            //                  { 0, 0, 0, 5, 0, 9, 0 },
+            //                  { 0, 0, 0, 0, 0, 0, 0},
+            //                  { 0, 0, 0, 0, 0, 0, 0 }};
+            //int vertex = 7;
+            //MSTUsingKruskalAlog(vertex);
+
+            int[,] edges = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 3, 0 }, { 3, 4 }, { 4, 3 } };
+            int vertex = 5;
+            BridgesInGraph(edges, vertex);
 
             #endregion
 
@@ -1738,7 +1761,7 @@ namespace PracticeCoding
             Console.Write($"Shortest Path from Source {source} to each node: -> ");
             foreach (var item in distance)
             {
-                Console.Write(item+", ");
+                Console.Write(item + ", ");
             }
         }
 
@@ -1809,6 +1832,479 @@ namespace PracticeCoding
 
         #region Shortest Path using Dijkstra's Algo
 
+        public static void ShortestPathUsingDijkstra(int source, int vertex)
+        {
+            //Prepare AdjList with weighted edges.
+            Graph g = new Graph();
+            //g.AddEdegesWithWeight(0, 1, 7);
+            //g.AddEdegesWithWeight(0, 2, 1);
+            //g.AddEdegesWithWeight(0, 3, 2);
+            //g.AddEdegesWithWeight(1, 0, 7);
+            //g.AddEdegesWithWeight(1, 2, 3);
+            //g.AddEdegesWithWeight(1, 3, 5);
+            //g.AddEdegesWithWeight(1, 4, 1);
+            //g.AddEdegesWithWeight(2, 1, 3);
+            //g.AddEdegesWithWeight(2, 0, 1);
+            //g.AddEdegesWithWeight(3, 0, 2);
+            //g.AddEdegesWithWeight(3, 1, 5);
+            //g.AddEdegesWithWeight(3, 4, 7);
+            //g.AddEdegesWithWeight(4, 1, 1);
+            //g.AddEdegesWithWeight(4, 3, 7);
+
+            vertex = 4;
+            g.AddEdegesWithWeight(0, 1, 5);
+            g.AddEdegesWithWeight(0, 2, 8);
+            g.AddEdegesWithWeight(1, 0, 5);
+            g.AddEdegesWithWeight(1, 2, 9);
+            g.AddEdegesWithWeight(1, 3, 2);
+            g.AddEdegesWithWeight(2, 0, 8);
+            g.AddEdegesWithWeight(2, 1, 9);
+            g.AddEdegesWithWeight(2, 3, 6);
+            g.AddEdegesWithWeight(3, 1, 2);
+            g.AddEdegesWithWeight(3, 2, 6);
+
+            var adjList = g.adjList;
+
+            //Distance for shortest Path
+            int[] distance = new int[vertex];
+            for (int i = 0; i < vertex; i++)
+            {
+                distance[i] = int.MaxValue;
+            }
+
+            //Distance from Source to source
+            distance[source] = 0;
+
+            //Set Pair of <NodeDistance, Node>
+            SortedDictionary<int, int> setPair = new SortedDictionary<int, int>();
+            setPair.Add(0, 0);
+
+            while (setPair.Count > 0)
+            {
+                int nodeDistance = new int();
+                int node = new int();
+                foreach (var item in setPair)
+                {
+                    nodeDistance = item.Key;
+                    node = item.Value;
+                    break;
+                }
+                setPair.Remove(nodeDistance);
+
+                Dictionary<int, int> directedNodes = new Dictionary<int, int>();
+                bool result = adjList.TryGetValue(node, out directedNodes);
+                if (result)
+                {
+                    foreach (var neighbour in directedNodes)
+                    {
+                        int newDistance = nodeDistance + neighbour.Value;
+                        if (newDistance < distance[neighbour.Key])
+                        {
+                            distance[neighbour.Key] = newDistance;
+                            if (setPair.ContainsValue(neighbour.Key))
+                            {
+                                var exisitingKey = setPair.FirstOrDefault(x => x.Value == neighbour.Key);
+                                setPair.Remove(exisitingKey.Key);
+
+                                setPair.Add(newDistance, neighbour.Key);
+                            }
+                            else
+                            {
+                                setPair.Add(newDistance, neighbour.Key);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Distance Array
+            Console.Write($"Shortest Distance for Source {source}-> ");
+            foreach (var item in distance)
+            {
+                Console.Write(item + ", ");
+            }
+            Console.WriteLine("\n");
+        }
+
+        /// <summary>
+        /// Another Approach  of using SetPair array insted of Sorted Dictionary
+        /// </summary>
+        public static void ShortestPathUsingDijkstraTwo()
+        {
+            int source = 0;
+            //Prepare Adj List
+            Graph g = new Graph();
+            //int vertex = 5;
+            //g.AddEdegesWithWeight(0, 1, 7);
+            //g.AddEdegesWithWeight(0, 2, 1);
+            //g.AddEdegesWithWeight(0, 3, 2);
+            //g.AddEdegesWithWeight(1, 0, 7);
+            //g.AddEdegesWithWeight(1, 2, 3);
+            //g.AddEdegesWithWeight(1, 3, 5);
+            //g.AddEdegesWithWeight(1, 4, 1);
+            //g.AddEdegesWithWeight(2, 1, 3);
+            //g.AddEdegesWithWeight(2, 0, 1);
+            //g.AddEdegesWithWeight(3, 0, 2);
+            //g.AddEdegesWithWeight(3, 1, 5);
+            //g.AddEdegesWithWeight(3, 4, 7);
+            //g.AddEdegesWithWeight(4, 1, 1);
+            //g.AddEdegesWithWeight(4, 3, 7);
+
+            int vertex = 4;
+            g.AddEdegesWithWeight(0, 1, 5);
+            g.AddEdegesWithWeight(0, 2, 8);
+            g.AddEdegesWithWeight(1, 0, 5);
+            g.AddEdegesWithWeight(1, 2, 9);
+            g.AddEdegesWithWeight(1, 3, 2);
+            g.AddEdegesWithWeight(2, 0, 8);
+            g.AddEdegesWithWeight(2, 1, 9);
+            g.AddEdegesWithWeight(2, 3, 6);
+            g.AddEdegesWithWeight(3, 1, 2);
+            g.AddEdegesWithWeight(3, 2, 6);
+
+            var adjList = g.adjList;
+
+            int[] distance = new int[vertex];
+            bool[] visited = new bool[vertex];
+
+            for (int i = 0; i < distance.Length; i++)
+            {
+                distance[i] = int.MaxValue;
+            }
+
+            distance[source] = 0;
+
+            for (int i = 0; i < vertex; i++)
+            {
+                int mini = int.MaxValue;
+                int u = new int();
+
+                for (int v = 0; v < vertex; v++)
+                {
+                    if (visited[v] == false && distance[v] < mini)
+                    {
+                        mini = distance[v];
+                        u = v;
+                    }
+                }
+
+                Dictionary<int, int> directedNode = new Dictionary<int, int>();
+                bool results = adjList.TryGetValue(u, out directedNode);
+                if (results)
+                {
+                    foreach (var neighbour in directedNode)
+                    {
+                        int newDistance = distance[u] + neighbour.Value;
+                        distance[neighbour.Key] = Math.Min(distance[neighbour.Key], newDistance);
+                    }
+                }
+
+                visited[u] = true;
+            }
+
+            //Distance Array
+            Console.Write($"Shortest Distance for Source {source}-> ");
+            foreach (var item in distance)
+            {
+                Console.Write(item + ", ");
+            }
+            Console.WriteLine("\n");
+        }
+
+        #endregion
+
+        #region Minimum Spanning Tree Using Prim's Algo
+
+        public static void MSTUsingPrimsAlgo()
+        {
+            //Prepare Adj List
+            Graph g = new Graph();
+            int numNode = 5;
+            int source = 0;
+            g.AddEdegesWithWeight(0, 1, 2);
+            g.AddEdegesWithWeight(0, 3, 6);
+            g.AddEdegesWithWeight(1, 0, 2);
+            g.AddEdegesWithWeight(1, 2, 3);
+            g.AddEdegesWithWeight(1, 3, 8);
+            g.AddEdegesWithWeight(1, 4, 5);
+            g.AddEdegesWithWeight(2, 1, 3);
+            g.AddEdegesWithWeight(2, 4, 7);
+            g.AddEdegesWithWeight(3, 0, 6);
+            g.AddEdegesWithWeight(3, 1, 8);
+            g.AddEdegesWithWeight(4, 1, 5);
+            g.AddEdegesWithWeight(4, 2, 7);
+
+            var adjList = g.adjList;
+
+            int[] key = new int[numNode];
+            bool[] mst = new bool[numNode];
+            int[] parent = new int[numNode];
+
+            for (int i = 0; i < numNode; i++)
+            {
+                key[i] = int.MaxValue;
+                mst[i] = false;
+                parent[i] = -1;
+            }
+
+            //Start Algo
+
+            //Find Minimum Key/Node
+            key[source] = 0;
+
+            for (int i = 0; i < numNode; i++)
+            {
+                int mini = int.MaxValue;
+                int u = new int();
+
+                for (int v = 0; v < numNode; v++)
+                {
+                    if (mst[v] == false && key[v] < mini)
+                    {
+                        u = v;
+                        mini = key[v];
+                    }
+                }
+
+                //Check Neighbours of Minimum key
+                Dictionary<int, int> directedNode = new Dictionary<int, int>();
+                bool result = adjList.TryGetValue(u, out directedNode);
+                if (result)
+                {
+                    foreach (var item in directedNode)
+                    {
+                        int v = item.Key;
+                        int w = item.Value;
+                        if (mst[v] == false && w < key[v])
+                        {
+                            parent[v] = u;
+                            key[v] = w;
+                        }
+                    }
+                }
+                mst[u] = true;
+            }
+
+
+            int sum = 0;
+            for (int i = 1; i < key.Length; i++)
+            {
+                sum = sum + key[i];
+            }
+            Console.Write($"Weight of MST -> {sum}");
+
+            Console.WriteLine("Minimum Spanning tree: ");
+            for (int i = 1; i < parent.Length; i++)
+            {
+                int directedNode = parent[i];
+                Console.Write($"{directedNode} -> {i}");
+                Console.WriteLine("\n");
+            }
+        }
+
+        #endregion
+
+        #region Minimum Spanning Tree Using Kruskal's Algo
+
+        public static void MSTUsingKruskalAlog(int vertex)
+        {
+            int edges = 9;
+            int[] parent = new int[vertex];
+            int[] rank = new int[vertex];
+            MakeSet(ref parent, ref rank, vertex);
+
+            Edge[] edge = new Edge[edges];
+            for (int i = 0; i < edges; i++)
+            {
+                edge[i] = new Edge();
+            }
+            edge[0].src = 1;
+            edge[0].dest = 2;
+            edge[0].weight = 2;
+
+            edge[1].src = 1;
+            edge[1].dest = 5;
+            edge[1].weight = 4;
+
+            edge[2].src = 1;
+            edge[2].dest = 4;
+            edge[2].weight = 1;
+
+            edge[3].src = 4;
+            edge[3].dest = 5;
+            edge[3].weight = 9;
+
+            edge[4].src = 4;
+            edge[4].dest = 3;
+            edge[4].weight = 5;
+
+            edge[5].src = 2;
+            edge[5].dest = 4;
+            edge[5].weight = 3;
+
+            edge[6].src = 2;
+            edge[6].dest = 6;
+            edge[6].weight = 7;
+
+            edge[7].src = 2;
+            edge[7].dest = 3;
+            edge[7].weight = 3;
+
+            edge[8].src = 3;
+            edge[8].dest = 6;
+            edge[8].weight = 8;
+
+            Array.Sort(edge);
+
+            int minWeight = 0;
+            for (int i = 0; i < edge.Length; i++)
+            {
+                int x = edge[i].src;
+                int y = edge[i].dest;
+                int u = FindParent(ref parent, x);
+                int v = FindParent(ref parent, y);
+                int wt = edge[i].weight;
+
+                if (u != v)
+                {
+                    UnionSet(u, v, ref parent, ref rank);
+                    minWeight = minWeight + wt;
+                }
+            }
+        }
+
+        public static void MakeSet(ref int[] parent, ref int[] rank, int vertex)
+        {
+            for (int i = 0; i < vertex; i++)
+            {
+                parent[i] = i;
+                rank[i] = 0;
+            }
+        }
+
+        public static void UnionSet(int u, int v, ref int[] parent, ref int[] rank)
+        {
+            u = FindParent(ref parent, u);
+            v = FindParent(ref parent, v);
+            if (rank[u] < rank[v])
+            {
+                parent[u] = v;
+            }
+            else if (rank[v] < rank[u])
+            {
+                parent[v] = u;
+            }
+            else
+            {
+                parent[v] = u;
+                rank[u]++;
+            }
+        }
+
+        public static int FindParent(ref int[] parent, int node)
+        {
+            if (parent[node] == node)
+            {
+                return node;
+            }
+            return parent[node] = FindParent(ref parent, parent[node]);
+        }
+
+        class Edge : IComparable<Edge>
+        {
+            public int src, dest, weight;
+
+            // Comparator function used for sorting edges 
+            // based on their weight 
+            public int CompareTo(Edge compareEdge)
+            {
+                return this.weight - compareEdge.weight;
+            }
+        }
+
+        #endregion
+
+        #region Bridges in Graph
+
+        public static void BridgesInGraph(int[,] edges, int vertex)
+        {
+            //Prepare Adj List
+            Dictionary<int, List<int>> adjList = new Dictionary<int, List<int>>();
+            int rowSize = edges.GetLength(0);
+            PrepareAdjList(edges, rowSize, ref adjList, false);
+
+            //DS required
+            int[] discoveryTime = new int[vertex];
+            int[] lowestTimeRequired = new int[vertex];
+            bool[] visited = new bool[vertex];
+            int timer = 0;
+            int parent = -1;
+
+            Dictionary<int, int> ans = new Dictionary<int, int>();
+
+            for (int i = 0; i < vertex; i++)
+            {
+                discoveryTime[i] = -1;
+                lowestTimeRequired[i] = -1;
+                visited[i] = false;
+            }
+
+            //Perform DFS Bridge
+            for (int i = 0; i < vertex; i++)
+            {
+                if (!visited[i])
+                {
+                    DFSBridge(i, parent, adjList, ref discoveryTime, ref lowestTimeRequired, ref visited, ref timer, ref ans);
+                }
+            }
+
+            Console.WriteLine("Bridges in Graph");
+            foreach (var item in ans)
+            {
+                Console.WriteLine(item.Key + " -> " + item.Value);
+            }
+        }
+
+        public static void DFSBridge(int node, int parent, Dictionary<int, List<int>> adjList, ref int[] discoveryTime, ref int[] lowestTimeRequired, ref bool[] visited, ref int timer,
+            ref Dictionary<int, int> ans)
+        {
+            discoveryTime[node] = lowestTimeRequired[node] = timer;
+            timer++;
+
+            List<int> values = new List<int>();
+            bool result = adjList.TryGetValue(node, out values);
+            if (result)
+            {
+                if (!visited[node])
+                {
+                    visited[node] = true;
+                    foreach (var neighbour in values)
+                    {
+                        //Check neighbour == parent, if yes ->ignore
+                        if (neighbour == parent)
+                        {
+                            continue;
+                        }
+                        if (!visited[neighbour])
+                        {
+                            DFSBridge(neighbour, node, adjList, ref discoveryTime, ref lowestTimeRequired, ref visited, ref timer, ref ans);
+                            lowestTimeRequired[node] = Math.Min(lowestTimeRequired[node], lowestTimeRequired[neighbour]);
+                            //Check Bridge
+                            if (lowestTimeRequired[neighbour] > discoveryTime[node])
+                            {
+                                ans.Add(node, neighbour);
+                            }
+                        }
+                        else
+                        {
+                            //Back Edge
+                            lowestTimeRequired[node] = Math.Min(lowestTimeRequired[node], discoveryTime[neighbour]);
+                        }
+                    }
+                }
+            }
+        }
+
         #endregion
 
         #endregion
@@ -1875,6 +2371,7 @@ namespace PracticeCoding
                 Console.WriteLine("\n");
             }
         }
+
 
         #endregion
     }
@@ -2126,6 +2623,7 @@ namespace PracticeCoding
             return leftLeaf + rightLeaf;
         }
     }
-    #endregion
 
+
+    #endregion
 }
